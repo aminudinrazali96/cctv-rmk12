@@ -1,94 +1,123 @@
-<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<title>Dashboard CCTV RMK12 – UM</title>
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<title>Dashboard CCTV RMK12 – UM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" crossorigin>
 <style>
-/* Layout: summary band (ring + KPIs) → weighted work packages → cabling by site → baseline timeline with today line */
+/* Theme: cheerful, one colour per work package (same colours in strip, table and timeline) */
 :root{
-  --bg:#f3f5f8; --surface:#ffffff; --line:#dde2ea; --fg:#18202c; --muted:#5d6878;
-  --accent:#2c4a7a; --accent-soft:#e3eaf5;
-  --ok:#2f8a5b; --ok-soft:#dcf1e5; --warn:#b97a0c; --warn-soft:#fbefd4; --idle:#9aa4b2; --idle-soft:#eceff3;
-  --today:#c2413b;
+  color-scheme:light;
+  --bg:#f6f4ff; --surface:#ffffff; --line:#e8e4f6; --fg:#1d1838; --muted:#6b6590;
+  --idle:#a9a4c4; --idle-soft:#efecf8;
+  --ok:#16a34a; --ok-soft:#dcfce7;
+  --warn:#ea580c; --warn-soft:#ffedd5;
+  --accent:#7b5cff; --pink:#ff4f8b; --orange:#ff9f1c;
+  --today:#ef4444;
+  --grad:linear-gradient(90deg,#7b5cff,#ff4f8b,#ff9f1c,#ffc93c,#22c55e,#14b8a6,#3b82f6);
+  --hero:linear-gradient(120deg,#6d4dff 0%,#c14bff 35%,#ff4f8b 65%,#ff9f1c 100%);
   --f-display:"Archivo",system-ui,sans-serif; --f-body:"Public Sans",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --shadow:0 1px 2px rgba(40,20,90,.05),0 8px 24px -12px rgba(80,50,180,.18);
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#10151d; --surface:#18202b; --line:#2a3442; --fg:#e6ebf2; --muted:#9aa6b6;
-  --accent:#8fb0e6; --accent-soft:#22324a;
-  --ok:#5cc28d; --ok-soft:#1b3328; --warn:#e5ad45; --warn-soft:#382c14; --idle:#6f7b8b; --idle-soft:#232b36;
-  --today:#ef6b63; color-scheme:dark}}
+  color-scheme:dark;
+  --bg:#13111f; --surface:#1d1a2e; --line:#2f2a47; --fg:#f2effd; --muted:#a6a0c6;
+  --idle:#6f6a8c; --idle-soft:#29253d;
+  --ok:#4ade80; --ok-soft:#163323; --warn:#fb923c; --warn-soft:#3a2414;
+  --today:#f87171;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+}}
 :root[data-theme="dark"]{
-  --bg:#10151d; --surface:#18202b; --line:#2a3442; --fg:#e6ebf2; --muted:#9aa6b6;
-  --accent:#8fb0e6; --accent-soft:#22324a;
-  --ok:#5cc28d; --ok-soft:#1b3328; --warn:#e5ad45; --warn-soft:#382c14; --idle:#6f7b8b; --idle-soft:#232b36;
-  --today:#ef6b63; color-scheme:dark}
+  color-scheme:dark;
+  --bg:#13111f; --surface:#1d1a2e; --line:#2f2a47; --fg:#f2effd; --muted:#a6a0c6;
+  --idle:#6f6a8c; --idle-soft:#29253d;
+  --ok:#4ade80; --ok-soft:#163323; --warn:#fb923c; --warn-soft:#3a2414;
+  --today:#f87171;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
-.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:22px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:20px}
 h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
-h1{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-.01em}
-h2{font-size:1.05rem;font-weight:700}
-.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+h2{font-size:1.08rem;font-weight:700}
 .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-header{display:grid;gap:6px}
-header p{margin:0;color:var(--muted);max-width:70ch}
-.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.85rem;color:var(--muted)}
-.meta b{color:var(--fg);font-weight:600}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
-.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.panel-head span{font-size:.82rem;color:var(--muted)}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:18px;padding:26px 26px 24px;background:var(--hero);color:#fff;box-shadow:var(--shadow)}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.13);pointer-events:none}
+.hero::before{width:260px;height:260px;right:-70px;top:-110px}
+.hero::after{width:140px;height:140px;right:150px;bottom:-80px;background:rgba(255,201,60,.28)}
+.hero .eyebrow{color:rgba(255,255,255,.85)}
+.hero h1{font-size:clamp(1.55rem,3.4vw,2.2rem);font-weight:800;letter-spacing:-.01em;margin:6px 0 6px}
+.hero p{margin:0 0 14px;max-width:72ch;color:rgba(255,255,255,.92);position:relative}
+.chips{display:flex;flex-wrap:wrap;gap:8px;position:relative}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);font-size:.82rem}
+.chip b{font-weight:700}
+
+/* panels */
+.panel{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 20px 20px;min-width:0;box-shadow:var(--shadow)}
+.panel::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--grad)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.panel-head > span{font-size:.82rem;color:var(--muted)}
 
 /* summary */
 .summary{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
-.ring{position:relative;width:170px;height:170px}
+.ring{position:relative;width:180px;height:180px}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring .label{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-.ring .big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1}
-.ring .small{font-size:.75rem;color:var(--muted);margin-top:4px}
+.ring .big{font-family:var(--f-display);font-weight:800;font-size:2.05rem;line-height:1;background:linear-gradient(90deg,#7b5cff,#ff4f8b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ring .small{font-size:.76rem;color:var(--muted);margin-top:4px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.kpi{border-left:3px solid var(--line);padding:4px 0 4px 12px;display:grid;gap:2px}
-.kpi .v{font-family:var(--f-display);font-weight:700;font-size:1.6rem;line-height:1.1}
-.kpi .k{font-size:.8rem;color:var(--muted)}
-.kpi.ok{border-color:var(--ok)} .kpi.warn{border-color:var(--warn)} .kpi.idle{border-color:var(--idle)} .kpi.acc{border-color:var(--accent)}
+.kpi{--c:#7b5cff;border-radius:14px;padding:14px;background:color-mix(in srgb,var(--c) 11%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 28%,transparent);display:grid;gap:6px;align-content:start}
+.kpi .ic{width:30px;height:30px;border-radius:9px;background:var(--c);display:grid;place-items:center;color:#fff;box-shadow:0 4px 10px -4px var(--c)}
+.kpi .ic svg{width:17px;height:17px}
+.kpi .v{font-family:var(--f-display);font-weight:800;font-size:1.65rem;line-height:1.05;color:color-mix(in srgb,var(--c) 85%,var(--fg))}
+.kpi .k{font-size:.8rem;color:var(--muted);line-height:1.35}
 
 /* weight strip */
-.strip{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);margin-bottom:6px}
-.strip > div{position:relative;border-right:2px solid var(--surface);background:var(--idle-soft)}
-.strip > div:last-child{border-right:0}
-.strip .fill{position:absolute;inset:0 auto 0 0}
-.strip .tag{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;color:var(--fg)}
-.strip-note{font-size:.8rem;color:var(--muted);margin:0 0 16px}
+.strip{display:flex;height:40px;border-radius:12px;overflow:hidden;margin-bottom:8px;gap:3px}
+.strip > div{position:relative;background:color-mix(in srgb,var(--c) 16%,var(--surface));border-radius:8px;overflow:hidden}
+.strip .fill{position:absolute;inset:0 auto 0 0;background:var(--c)}
+.strip .tag{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.74rem;font-weight:600;color:var(--fg)}
+.strip .tag.on{color:#fff}
+.strip-note{font-size:.82rem;color:var(--muted);margin:0 0 16px}
 
 table{width:100%;border-collapse:collapse;font-size:.88rem}
 .tbl{overflow-x:auto}
 th{text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:last-child td{border-bottom:0}
-tfoot td{font-weight:700;border-top:2px solid var(--line)}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
 td.r,th.r{text-align:right}
-.bar{height:8px;border-radius:4px;background:var(--idle-soft);min-width:90px;overflow:hidden}
-.bar i{display:block;height:100%;border-radius:4px}
-.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.wp{display:flex;align-items:center;gap:10px}
+.dot{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:.82rem;color:#fff;background:var(--c);box-shadow:0 3px 8px -3px var(--c)}
+.bar{height:10px;border-radius:999px;background:var(--idle-soft);min-width:90px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:var(--c,var(--accent))}
+.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
 .pill.ok{background:var(--ok-soft);color:var(--ok)}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .pill.idle{background:var(--idle-soft);color:var(--muted)}
 
-
 /* cabling */
-.sites{display:grid;gap:14px}
-.site{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center}
-.site .name{font-weight:600}
-.site .count{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);white-space:nowrap}
-.site .bar{height:14px}
-.cab-total{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.cab-total .v{font-family:var(--f-display);font-weight:800;font-size:1.8rem}
+.cab{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:center}
+.sites{display:grid;gap:12px}
+.site{--c:#7b5cff;display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center}
+.site .name{font-weight:700;color:color-mix(in srgb,var(--c) 80%,var(--fg))}
+.site .count{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);white-space:nowrap}
+.site .bar{height:16px}
+.cab-total{border-radius:16px;padding:20px;background:linear-gradient(135deg,color-mix(in srgb,#14b8a6 16%,var(--surface)),color-mix(in srgb,#3b82f6 16%,var(--surface)));border:1px solid color-mix(in srgb,#14b8a6 30%,transparent);display:grid;gap:6px;text-align:center}
+.cab-total .v{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;background:linear-gradient(90deg,#14b8a6,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cab-total .count{font-size:.85rem;color:var(--muted)}
 
-/* timeline: one row per work package, label column + track */
-.tl-panel{position:relative;overflow:hidden}
-.tl-panel::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,#7b5cff,#ff4f8b,#ff9f1c,#ffc93c,#22c55e,#14b8a6,#3b82f6)}
+/* timeline */
 .tl-scroll{overflow-x:auto;margin-inline:-4px;padding-inline:4px}
-.tl{--lab:250px;min-width:640px;position:relative}
+.tl{--lab:250px;min-width:640px;position:relative;padding-bottom:24px}
 .tl-head,.tl-row{display:grid;grid-template-columns:var(--lab) 1fr}
 .tl-head > div:first-child{display:flex;align-items:flex-end;padding-bottom:6px;font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
 .tl-scale{display:grid;gap:3px;padding-bottom:6px}
@@ -98,24 +127,17 @@ td.r,th.r{text-align:right}
 .tl-wk span{position:absolute;top:0;bottom:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.66rem;color:var(--muted);border-left:1px solid var(--line)}
 .tl-wk span.pj{color:var(--fg);font-weight:600}
 .tl-wk span.now{background:color-mix(in srgb,var(--today) 16%,transparent);color:var(--today);font-weight:700;border-radius:4px}
-.tl-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
-.seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--idle-soft);gap:2px}
-.seg button{font:600 .78rem var(--f-body);border:0;background:transparent;color:var(--muted);padding:5px 14px;border-radius:999px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:linear-gradient(90deg,#7b5cff,#ff4f8b);color:#fff;box-shadow:0 2px 8px -3px #ff4f8b}
-.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tl-row{min-height:52px;align-items:center;border-top:1px solid var(--line)}
 .tl-row:nth-child(even) .tl-track{background:color-mix(in srgb,var(--fg) 2.5%,transparent)}
 .tl-lab{display:flex;gap:10px;align-items:center;padding-right:14px;min-width:0}
-.tl-dot{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:.85rem;color:#fff;background:var(--c);box-shadow:0 3px 8px -3px var(--c)}
 .tl-lab b{display:block;font-size:.86rem;font-weight:600;line-height:1.25}
 .tl-lab small{display:block;font-size:.74rem;color:var(--muted)}
 .tl-track{position:relative;height:52px}
 .tl-bar{position:absolute;top:15px;height:22px;border-radius:999px;background:color-mix(in srgb,var(--c) 18%,var(--surface));border:2px solid var(--c);overflow:hidden}
 .tl-bar.idle{border-style:dashed;background:color-mix(in srgb,var(--c) 12%,var(--surface))}
 .tl-bar i{position:absolute;inset:0 auto 0 0;background:var(--c);border-radius:999px}
-.tl-bar.prog i{background:repeating-linear-gradient(-45deg,var(--c) 0 8px,color-mix(in srgb,var(--c) 75%,#fff) 8px 16px);animation:tl-stripe 1.2s linear infinite;background-size:22.6px 22.6px}
+.tl-bar.prog i{background:repeating-linear-gradient(-45deg,var(--c) 0 8px,color-mix(in srgb,var(--c) 75%,#fff) 8px 16px);background-size:22.6px 22.6px;animation:tl-stripe 1.2s linear infinite}
 @keyframes tl-stripe{to{background-position:22.6px 0}}
-@media (prefers-reduced-motion:reduce){.tl-bar.prog i{animation:none}}
 .tl-pct{position:absolute;top:16px;font-family:var(--f-mono);font-size:.74rem;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--c);color:#fff;white-space:nowrap}
 .tl-pct.out{background:transparent;color:var(--muted);font-weight:500}
 .tl-lines{position:absolute;top:var(--hh,40px);bottom:24px;left:var(--lab);right:0;pointer-events:none}
@@ -127,7 +149,14 @@ td.r,th.r{text-align:right}
 .tl-lines .flag{position:absolute;bottom:-20px;transform:translateX(-50%);font-size:.68rem;font-weight:700;color:#fff;padding:2px 7px;border-radius:999px;white-space:nowrap}
 .tl-lines .today .flag{background:var(--today)}
 .tl-lines .target .flag{background:#7b5cff}
-.tl{padding-bottom:24px}
+.tl-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--idle-soft);gap:2px}
+.seg button{font:600 .78rem var(--f-body);border:0;background:transparent;color:var(--muted);padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:linear-gradient(90deg,#7b5cff,#ff4f8b);color:#fff;box-shadow:0 2px 8px -3px #ff4f8b}
+.btn-pdf{display:inline-flex;align-items:center;gap:7px;font:700 .8rem var(--f-body);border:0;border-radius:999px;padding:8px 15px;cursor:pointer;color:#fff;background:linear-gradient(90deg,#ff9f1c,#ff4f8b);box-shadow:0 4px 12px -5px #ff4f8b}
+.btn-pdf svg{width:15px;height:15px}
+.btn-pdf:disabled{opacity:.65;cursor:progress}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.78rem;color:var(--muted);margin-top:10px}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .legend i{display:inline-block;width:22px;height:10px;border-radius:999px;border:2px solid #3b82f6}
@@ -136,67 +165,89 @@ td.r,th.r{text-align:right}
 .legend .lg-idle{border-style:dashed;border-color:#22c55e;background:color-mix(in srgb,#22c55e 15%,transparent)}
 .legend .lg-today{width:0;height:14px;border:0;border-left:2px solid var(--today);border-radius:0}
 .legend .lg-target{width:0;height:14px;border:0;border-left:2px dashed #7b5cff;border-radius:0}
-@media (max-width:640px){.tl{--lab:150px}.tl-dot{display:none}.tl-lab b{font-size:.8rem}}
-footer{font-size:.78rem;color:var(--muted)}
-footer a{color:var(--accent)}
+.pdf-msg{font-size:.8rem;color:var(--today);margin:8px 0 0}
+
+/* export mode: fixed wide layout for PDF capture */
+.tl-panel.exporting{width:1120px;max-width:none}
+.tl-panel.exporting .tl-scroll{overflow:visible}
+.tl-panel.exporting .no-export{display:none!important}
+
+footer{font-size:.78rem;color:var(--muted);text-align:center}
 
 @media (max-width:860px){
   .summary{grid-template-columns:1fr;justify-items:center}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .cab{grid-template-columns:1fr}
 }
-@media (max-width:520px){ .hide-sm{display:none} }
-@media (prefers-reduced-motion:no-preference){
-  .bar i,.strip .fill{transition:width .6s ease}
+@media (max-width:640px){
+  .hero{padding:22px 18px}
+  .tl{--lab:150px}
+  .tl-lab .dot{display:none}
+  .tl-lab b{font-size:.8rem}
 }
+@media (max-width:520px){.hide-sm{display:none}}
+@media (prefers-reduced-motion:no-preference){.bar i,.strip .fill,.ring circle{transition:width .6s ease,stroke-dasharray .8s ease}}
+@media (prefers-reduced-motion:reduce){.tl-bar.prog i{animation:none}}
 </style>
-</head><body>
+</head>
+<body>
 <div class="wrap">
-  <header>
+  <header class="hero">
     <div class="eyebrow">Jabatan Teknologi Digital · Universiti Malaya</div>
     <h1>Dashboard Projek CCTV RMK12</h1>
     <p id="projName"></p>
-    <div class="meta">
-      <span>Tarikh laporan: <b id="repDate"></b></span>
-      <span>Kemaskini terakhir: <b id="updDate"></b></span>
+    <div class="chips">
+      <span class="chip">Tarikh laporan <b id="repDate"></b></span>
+      <span class="chip">Kemaskini terakhir <b id="updDate"></b></span>
     </div>
   </header>
 
   <section class="panel summary" aria-label="Ringkasan">
     <div class="ring" role="img" id="ringWrap">
       <svg viewBox="0 0 120 120" aria-hidden="true">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--idle-soft)" stroke-width="12"/>
-        <circle id="ringArc" cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 314.16"/>
+        <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b5cff"/><stop offset=".55" stop-color="#ff4f8b"/><stop offset="1" stop-color="#ff9f1c"/></linearGradient></defs>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--idle-soft)" stroke-width="13"/>
+        <circle id="ringArc" cx="60" cy="60" r="50" fill="none" stroke="url(#rg)" stroke-width="13" stroke-linecap="round" stroke-dasharray="0 314.16"/>
       </svg>
       <div class="label"><div class="big num" id="overallPct"></div><div class="small">kemajuan keseluruhan</div></div>
     </div>
     <div class="kpis" id="kpis"></div>
   </section>
 
-
   <section class="panel" aria-label="Pakej kerja">
-    <div class="panel-head"><h2>Pakej kerja mengikut wajaran</h2><span>Lebar setiap blok = wajaran; isi = kemajuan semasa</span></div>
+    <div class="panel-head"><h2>Pakej kerja mengikut wajaran</h2><span>Lebar blok = wajaran · isi = kemajuan</span></div>
     <div class="strip" id="strip"></div>
     <p class="strip-note" id="stripNote"></p>
     <div class="tbl">
       <table>
         <thead><tr><th>Pakej kerja</th><th class="r">Wajaran</th><th>Kemajuan semasa</th><th class="r">Diperoleh</th><th>Status</th><th class="hide-sm">Jadual asal</th><th class="hide-sm">Jadual sebenar</th></tr></thead>
         <tbody id="wpBody"></tbody>
-        <tfoot><tr><td>Jumlah</td><td class="r num">100%</td><td></td><td class="r num" id="wpTotal"></td><td><span class="pill warn">In progress</span></td><td class="hide-sm"></td><td class="hide-sm"></td></tr></tfoot>
+        <tfoot><tr><td>Jumlah</td><td class="r num">100%</td><td></td><td class="r num" id="wpTotal"></td><td><span class="pill warn" id="wpTotStatus"></span></td><td class="hide-sm"></td><td class="hide-sm"></td></tr></tfoot>
       </table>
     </div>
   </section>
 
   <section class="panel" aria-label="Status pemasangan kabel">
-    <div class="panel-head"><h2>Pemasangan kabel</h2><span>Mata kabel siap / jumlah</span></div>
-    <div class="sites" id="sites"></div>
-    <div class="cab-total">
-      <div><div class="eyebrow">Jumlah keseluruhan</div><div class="count num" id="cabCount"></div></div>
-      <div class="v num" id="cabPct"></div>
+    <div class="panel-head"><h2>Pemasangan kabel</h2><span>Mata kabel siap / jumlah mengikut lokasi</span></div>
+    <div class="cab">
+      <div class="sites" id="sites"></div>
+      <div class="cab-total">
+        <div class="eyebrow">Jumlah keseluruhan</div>
+        <div class="v num" id="cabPct"></div>
+        <div class="count num" id="cabCount"></div>
+      </div>
     </div>
   </section>
 
-  <section class="panel tl-panel" aria-label="Garis masa">
-    <div class="panel-head"><h2>Garis masa projek</h2><div class="tl-tools"><span id="todayLabel"></span><div class="seg" role="group" aria-label="Skala garis masa"><button type="button" data-mode="month" aria-pressed="true">Bulan</button><button type="button" data-mode="week" aria-pressed="false">Minggu</button></div></div></div>
+  <section class="panel tl-panel" aria-label="Garis masa" id="tlPanel">
+    <div class="panel-head">
+      <h2>Garis masa projek</h2>
+      <div class="tl-tools">
+        <span id="todayLabel"></span>
+        <div class="seg no-export" role="group" aria-label="Skala garis masa"><button type="button" data-mode="month" aria-pressed="true">Bulan</button><button type="button" data-mode="week" aria-pressed="false">Minggu</button></div>
+        <button type="button" class="btn-pdf no-export" id="btnPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>Muat turun PDF</span></button>
+      </div>
+    </div>
     <div class="tl-scroll"><div class="tl" id="gantt"></div></div>
     <div class="legend">
       <span><i class="lg-done"></i>Selesai</span>
@@ -205,13 +256,14 @@ footer a{color:var(--accent)}
       <span><i class="lg-today"></i>Hari ini</span>
       <span><i class="lg-target"></i>Sasaran penghantaran (1 Dis)</span>
     </div>
+    <p class="pdf-msg no-export" id="pdfMsg" hidden></p>
   </section>
 
   <footer>Sumber: laporan kemajuan projek, Jabatan Teknologi Digital UM. Kemajuan keseluruhan = jumlah (wajaran × kemajuan semasa).</footer>
 </div>
 
 <script>
-/* ===== DATA (salinan dari Google Sheet, 6 Okt 2026) ===== */
+/* ===== DATA (salinan dari Google Sheet) ===== */
 const DATA = {
   project: "Perolehan Penggantian dan Perolehan Sistem Pengawasan Keselamatan Bersepadu – JTM, Universiti Malaya",
   reportingDate: "2026-10-06",
@@ -234,150 +286,190 @@ const DATA = {
     { site:"FSKTM", total:40, done:15 }
   ]
 };
-/* ======================================================== */
+/* ============================================ */
+
+/* One colour per work package, used in strip, table and timeline */
+const PKG = ["#7b5cff","#ff4f8b","#ff9f1c","#f5b400","#22c55e","#14b8a6","#3b82f6"];
+const SITE = ["#7b5cff","#ff4f8b","#ff9f1c","#22c55e","#3b82f6","#14b8a6","#f5b400"];
 
 const MONTHS=["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"];
+const FULL=["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
+const DAY=864e5;
 const d = s => { const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd); };
-const fmtDate = s => { const x=d(s); return `${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
+const fmtDate = x => { if(typeof x==="string") x=d(x); return `${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
 const fmtShort = s => { const x=d(s); return `${x.getDate()} ${MONTHS[x.getMonth()]}`; };
 const pct = (v,dp=2) => (Math.round(v*10**dp)/10**dp).toLocaleString("en-US",{maximumFractionDigits:dp})+"%";
 const cls = st => st==="Completed"?"ok":st==="In progress"?"warn":"idle";
-const col = st => `var(--${cls(st)})`;
 const label = st => ({Completed:"Selesai","In progress":"Dalam pelaksanaan","Not started":"Belum bermula"})[st]||st;
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const now = new Date(); const today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
 
 // header
 document.getElementById("projName").textContent = DATA.project;
 document.getElementById("repDate").textContent = fmtDate(DATA.reportingDate);
 document.getElementById("updDate").textContent = fmtDate(DATA.lastUpdated);
 
-// cabling numbers feed the cable work package
+// numbers
 const cabTotal = DATA.cabling.reduce((a,c)=>a+c.total,0);
 const cabDone  = DATA.cabling.reduce((a,c)=>a+c.done,0);
 const cabPct   = cabTotal ? cabDone/cabTotal*100 : 0;
-
-const wps = DATA.workPackages.map(w=>({...w, earned:w.weight*w.progress/100}));
+const wps = DATA.workPackages.map((w,i)=>({...w, c:PKG[i%PKG.length], earned:w.weight*w.progress/100}));
 const overall = wps.reduce((a,w)=>a+w.earned,0);
 
 // ring
 const C = 2*Math.PI*50;
-document.getElementById("ringArc").setAttribute("stroke-dasharray", `${(overall/100*C).toFixed(2)} ${C.toFixed(2)}`);
+requestAnimationFrame(()=>document.getElementById("ringArc").setAttribute("stroke-dasharray", `${C*overall/100} ${C}`));
 document.getElementById("overallPct").textContent = pct(overall);
 document.getElementById("ringWrap").setAttribute("aria-label", `Kemajuan keseluruhan ${pct(overall)}`);
 
 // KPIs
+const IC = {
+  check:'<path d="M5 12.5 10 17l9-10"/>',
+  play:'<path d="M8 5v14l11-7z"/>',
+  cable:'<path d="M4 7h7a4 4 0 0 1 0 8H8"/><path d="M8 11v8"/><circle cx="18" cy="7" r="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'
+};
 const nDone = wps.filter(w=>w.status==="Completed").length;
 const nProg = wps.filter(w=>w.status==="In progress").length;
-const nIdle = wps.filter(w=>w.status==="Not started").length;
 const end = wps.reduce((m,w)=>d(w.baseline[1])>m?d(w.baseline[1]):m, d(wps[0].baseline[1]));
-const today = d(DATA.reportingDate);
-const daysLeft = Math.round((end-today)/864e5);
+const daysLeft = Math.round((end-today)/DAY);
 document.getElementById("kpis").innerHTML = [
-  ["ok", `${nDone}/${wps.length}`, "pakej kerja selesai"],
-  ["warn", nProg, "pakej dalam pelaksanaan"],
-  ["acc", pct(cabPct), `kabel siap (${cabDone}/${cabTotal} mata)`],
-  ["idle", daysLeft, `hari ke tarikh siap asal (${end.getDate()} ${MONTHS[end.getMonth()]})`]
-].map(([c,v,k])=>`<div class="kpi ${c}"><div class="v num">${v}</div><div class="k">${k}</div></div>`).join("");
+  ["#22c55e","check", `${nDone}/${wps.length}`, "pakej kerja selesai"],
+  ["#ff9f1c","play",  nProg, "pakej dalam pelaksanaan"],
+  ["#14b8a6","cable", pct(cabPct), `kabel siap (${cabDone}/${cabTotal} mata)`],
+  ["#7b5cff","cal",   daysLeft>=0?daysLeft:0, daysLeft>=0?`hari lagi ke tarikh siap asal (${end.getDate()} ${MONTHS[end.getMonth()]})`:`hari selepas tarikh siap asal`]
+].map(([c,ic,v,k])=>`<div class="kpi" style="--c:${c}"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${IC[ic]}</svg></div><div class="v num">${v}</div><div class="k">${k}</div></div>`).join("");
 
 // strip
 document.getElementById("strip").innerHTML = wps.map(w=>
-  `<div style="flex:${w.weight}" title="${esc(w.name)}: ${w.weight}% wajaran, ${pct(w.progress)} siap">
-     <div class="fill" style="width:${w.progress}%;background:${col(w.status)};opacity:.85"></div>
-     <div class="tag">${w.weight >= 7 ? w.weight+"%" : ""}</div></div>`).join("");
+  `<div style="flex:${w.weight};--c:${w.c}" title="${esc(w.name)}: ${w.weight}% wajaran, ${pct(w.progress)} siap">
+     <div class="fill" style="width:${w.progress}%"></div>
+     <div class="tag${w.progress>=50?" on":""}">${w.weight >= 7 ? w.weight+"%" : ""}</div></div>`).join("");
 const remaining = 100-overall;
+const biggestIdle = wps.filter(w=>w.status==="Not started").sort((a,b)=>b.weight-a.weight)[0];
 document.getElementById("stripNote").textContent =
-  `Baki ${pct(remaining)} masih belum diperoleh. Pakej terbesar yang belum bermula: CCTV Supply & Installation (30%).`;
+  `Baki ${pct(remaining)} masih belum diperoleh.` + (biggestIdle?` Pakej terbesar yang belum bermula: ${biggestIdle.name} (${biggestIdle.weight}%).`:"");
 
 // table
-document.getElementById("wpBody").innerHTML = wps.map(w=>`
-  <tr>
-    <td>${esc(w.name)}</td>
+document.getElementById("wpBody").innerHTML = wps.map((w,i)=>`
+  <tr style="--c:${w.c}">
+    <td><div class="wp"><span class="dot">${i+1}</span><span>${esc(w.name)}</span></div></td>
     <td class="r num">${w.weight}%</td>
-    <td><div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex:1"><i style="width:${w.progress}%;background:${col(w.status)}"></i></div><span class="num" style="min-width:4.5em;text-align:right">${pct(w.progress)}</span></div></td>
+    <td><div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex:1"><i style="width:${w.progress}%"></i></div><span class="num" style="min-width:4.5em;text-align:right">${pct(w.progress)}</span></div></td>
     <td class="r num">${pct(w.earned)}</td>
     <td><span class="pill ${cls(w.status)}">${label(w.status)}</span></td>
     <td class="hide-sm num" style="white-space:nowrap">${fmtShort(w.baseline[0])}${w.baseline[0]!==w.baseline[1]?" – "+fmtShort(w.baseline[1]):""}</td>
     <td class="hide-sm" style="white-space:nowrap">${esc(w.actual)}</td>
   </tr>`).join("");
 document.getElementById("wpTotal").textContent = pct(overall);
+const totSt = overall>=100?"Completed":overall>0?"In progress":"Not started";
+const tsEl=document.getElementById("wpTotStatus"); tsEl.className="pill "+cls(totSt); tsEl.textContent=label(totSt);
 
 // cabling
-document.getElementById("sites").innerHTML = DATA.cabling.map(c=>{
+document.getElementById("sites").innerHTML = DATA.cabling.map((c,i)=>{
   const p = c.total? c.done/c.total*100 : 0;
-  const st = p>=100?"Completed":p>0?"In progress":"Not started";
-  return `<div class="site">
+  return `<div class="site" style="--c:${SITE[i%SITE.length]}">
     <div class="name">${esc(c.site)}</div>
-    <div class="bar" title="${pct(p)}"><i style="width:${p}%;background:${col(st)}"></i></div>
+    <div class="bar" title="${pct(p)}"><i style="width:${p}%"></i></div>
     <div class="count">${c.done}/${c.total} · ${pct(p,0)}</div></div>`;
 }).join("");
 document.getElementById("cabCount").textContent = `${cabDone} daripada ${cabTotal} mata kabel`;
 document.getElementById("cabPct").textContent = pct(cabPct);
 
-// timeline (one row per work package; Bulan / Minggu scale)
-(function(){
+// timeline (one row per work package; Bulan / Minggu)
+const TL = (function(){
   const start = d("2026-08-03"), stop = d("2026-12-08");          /* 3 Ogo 2026 = Isnin */
-  const projStart = d(DATA.workPackages[0].baseline[0]);
-  const TL_COLORS = ["#7b5cff","#ff4f8b","#ff9f1c","#f5b400","#22c55e","#14b8a6","#3b82f6"];
-  const MONTH_COLORS = ["#7b5cff","#ff4f8b","#ff9f1c","#14b8a6","#3b82f6"];
-  const FULL = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
-  const DAY = 864e5, X = t => Math.max(0,Math.min(100,(t-start)/(stop-start)*100));
+  const projStart = d(wps[0].baseline[0]);
+  const MCOL = ["#7b5cff","#ff4f8b","#ff9f1c","#14b8a6","#3b82f6"];
+  const X = t => Math.max(0,Math.min(100,(t-start)/(stop-start)*100));
   const el = document.getElementById("gantt");
+  let mode = "month";
 
-  function render(mode){
-    // month band: always shows month names
-    let band="", lines="";
+  function render(){
+    let band="", lines="", wk="";
     for(let m=7;m<=11;m++){
       const a=new Date(2026,m,1), b=new Date(2026,m+1,1);
       const l=X(a<start?start:a), r=X(b>stop?stop:b);
       if(r<=l) continue;
-      const name = (r-l)<9 ? FULL[m].slice(0,3) : FULL[m]+" 2026";
-      band+=`<div class="mo" style="left:${l}%;width:${r-l}%;background:${MONTH_COLORS[(m-7)%MONTH_COLORS.length]}">${name}</div>`;
+      band+=`<div class="mo" style="left:${l}%;width:${r-l}%;background:${MCOL[(m-7)%MCOL.length]}">${(r-l)<9?FULL[m].slice(0,3):FULL[m]+" 2026"}</div>`;
       if(a>=start) lines+=`<div class="m" style="left:${X(a)}%"></div>`;
     }
-    // week row: project weeks (Minggu 1 = minggu bermula projek)
-    let wk="";
     if(mode==="week"){
       const p0 = new Date(projStart.getTime() - ((projStart.getDay()+6)%7)*DAY);
       for(let t=new Date(start); t<stop; t=new Date(t.getTime()+7*DAY)){
-        const n = Math.round((t-p0)/(7*DAY))+1;
-        const l=X(t), r=X(new Date(t.getTime()+7*DAY));
-        const isNow = today>=t && today<new Date(t.getTime()+7*DAY);
-        const end = new Date(t.getTime()+6*DAY);
-        wk+=`<span class="${n>=1?"pj":""}${isNow?" now":""}" style="left:${l}%;width:${r-l}%" title="Minggu ${n>=1?n:"-"}: ${t.getDate()} ${MONTHS[t.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]}">${n>=1?"M"+n:""}</span>`;
-        lines+=`<div class="w" style="left:${l}%"></div>`;
+        const n=Math.round((t-p0)/(7*DAY))+1, nx=new Date(t.getTime()+7*DAY), e=new Date(t.getTime()+6*DAY);
+        const isNow = today>=t && today<nx;
+        wk+=`<span class="${n>=1?"pj":""}${isNow?" now":""}" style="left:${X(t)}%;width:${X(nx)-X(t)}%" title="Minggu ${n>=1?n:"-"}: ${t.getDate()} ${MONTHS[t.getMonth()]} – ${e.getDate()} ${MONTHS[e.getMonth()]}">${n>=1?"M"+n:""}</span>`;
+        lines+=`<div class="w" style="left:${X(t)}%"></div>`;
       }
     }
     const rows = wps.map((w,i)=>{
-      const c=TL_COLORS[i%TL_COLORS.length];
       const a=X(d(w.baseline[0])), b=X(new Date(d(w.baseline[1]).getTime()+DAY));
       const wd=Math.max(b-a,2.4);
       const k = w.status==="Completed"?"done":w.status==="In progress"?"prog":"idle";
-      const fill = k==="idle"?0:w.progress;
       const dates = fmtShort(w.baseline[0])+(w.baseline[0]!==w.baseline[1]?" – "+fmtShort(w.baseline[1]):"");
-      const pctTxt = k==="idle"?"0%":pct(w.progress,0);
-      const pl = a+wd;
-      const pos = pl>86 ? `right:${100-a}%;margin-right:8px` : `left:${pl}%;margin-left:8px`;
-      return `<div class="tl-row" style="--c:${c}">
-        <div class="tl-lab"><span class="tl-dot">${i+1}</span><div><b>${esc(w.name)}</b><small>${dates} · wajaran ${w.weight}%</small></div></div>
+      const pl=a+wd, pos = pl>86 ? `right:${100-a}%;margin-right:8px` : `left:${pl}%;margin-left:8px`;
+      return `<div class="tl-row" style="--c:${w.c}">
+        <div class="tl-lab"><span class="dot">${i+1}</span><div><b>${esc(w.name)}</b><small>${dates} · wajaran ${w.weight}%</small></div></div>
         <div class="tl-track" title="${esc(w.name)}: ${dates}, ${label(w.status)} ${pct(w.progress)}">
-          <div class="tl-bar ${k}" style="left:${a}%;width:${wd}%"><i style="width:${fill}%"></i></div>
-          <span class="tl-pct${k==="idle"?" out":""}" style="${pos}">${k==="done"?"✓ ":""}${pctTxt}</span>
+          <div class="tl-bar ${k}" style="left:${a}%;width:${wd}%"><i style="width:${k==="idle"?0:w.progress}%"></i></div>
+          <span class="tl-pct${k==="idle"?" out":""}" style="${pos}">${k==="done"?"✓ ":""}${k==="idle"?"0%":pct(w.progress,0)}</span>
         </div></div>`;
     }).join("");
-    lines+=`<div class="today" style="left:${X(today)}%"><span class="flag">Hari ini</span></div>`;
+    if(today>=start && today<=stop) lines+=`<div class="today" style="left:${X(today)}%"><span class="flag">Hari ini</span></div>`;
     lines+=`<div class="target" style="left:${X(d(DATA.targetDate))}%"><span class="flag">Sasaran 1 Dis</span></div>`;
     el.innerHTML = `<div class="tl-head"><div>${mode==="week"?"Pakej kerja · Minggu projek (M)":"Pakej kerja"}</div><div class="tl-scale"><div class="tl-band">${band}</div>${mode==="week"?`<div class="tl-wk">${wk}</div>`:""}</div></div>${rows}<div class="tl-lines">${lines}</div>`;
     el.style.setProperty("--hh", el.querySelector(".tl-head").offsetHeight+"px");
   }
-
-  let mode="month";
   try{ const m=localStorage.getItem("cctv12-tl"); if(m==="week"||m==="month") mode=m; }catch(e){}
   const btns=[...document.querySelectorAll(".seg button")];
-  const set=m=>{ mode=m; btns.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m))); render(m); try{localStorage.setItem("cctv12-tl",m);}catch(e){} };
+  const set=m=>{ mode=m; btns.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===m))); render(); try{localStorage.setItem("cctv12-tl",m);}catch(e){} };
   btns.forEach(b=>b.addEventListener("click",()=>set(b.dataset.mode)));
   set(mode);
-  document.getElementById("todayLabel").textContent = `Hari ini: ${fmtDate(DATA.reportingDate)}`;
+  document.getElementById("todayLabel").textContent = `Hari ini: ${fmtDate(today)}`;
+  return { render, get mode(){return mode;} };
+})();
+
+// PDF download of the timeline panel
+(function(){
+  const btn=document.getElementById("btnPdf"), msg=document.getElementById("pdfMsg"), panel=document.getElementById("tlPanel");
+  const load = src => new Promise((ok,no)=>{ if(document.querySelector(`script[src="${src}"]`)) return ok(); const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=()=>no(new Error("Gagal memuat "+src)); document.head.appendChild(s); });
+  const LIBS=["https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
+  btn.addEventListener("click", async ()=>{
+    const lbl=btn.querySelector("span"), old=lbl.textContent;
+    btn.disabled=true; lbl.textContent="Menjana PDF…"; msg.hidden=true;
+    const root=document.documentElement, prevTheme=root.getAttribute("data-theme");
+    try{
+      for(const s of LIBS) await load(s);
+      root.setAttribute("data-theme","light");
+      panel.classList.add("exporting"); TL.render();
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      const opt={pixelRatio:2,backgroundColor:"#ffffff",width:panel.offsetWidth,height:panel.offsetHeight,filter:n=>!(n.classList&&n.classList.contains("no-export"))};
+      let img;
+      try{ img=await htmlToImage.toPng(panel,opt); }catch(e){ img=await htmlToImage.toPng(panel,{...opt,skipFonts:true}); }
+      const w=panel.offsetWidth, h=panel.offsetHeight;
+      panel.classList.remove("exporting"); TL.render();
+      if(prevTheme===null) root.removeAttribute("data-theme"); else root.setAttribute("data-theme",prevTheme);
+      const { jsPDF } = window.jspdf;
+      const pdf=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+      const PW=297, PH=210, M=10;
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.setTextColor(29,24,56);
+      pdf.text("Dashboard Projek CCTV RMK12 - Garis Masa Projek", M, M+5);
+      pdf.setFont("helvetica","normal"); pdf.setFontSize(9); pdf.setTextColor(107,101,144);
+      pdf.text(`Jabatan Teknologi Digital, Universiti Malaya  |  Data: ${fmtDate(DATA.lastUpdated)}  |  Paparan: ${TL.mode==="week"?"Minggu":"Bulan"}  |  Dijana: ${fmtDate(today)}`, M, M+11);
+      const top=M+16, maxW=PW-2*M, maxH=PH-top-M;
+      let iw=maxW, ih=iw*h/w; if(ih>maxH){ ih=maxH; iw=ih*w/h; }
+      pdf.addImage(img,"PNG",M+(maxW-iw)/2,top,iw,ih,undefined,"FAST");
+      const p=n=>String(n).padStart(2,"0");
+      pdf.save(`Garis-Masa-CCTV-RMK12-${today.getFullYear()}-${p(today.getMonth()+1)}-${p(today.getDate())}.pdf`);
+    }catch(e){
+      console.error(e);
+      panel.classList.remove("exporting"); TL.render();
+      if(prevTheme===null) root.removeAttribute("data-theme"); else root.setAttribute("data-theme",prevTheme);
+      msg.textContent="PDF tidak dapat dijana. Semak sambungan internet dan cuba lagi."; msg.hidden=false;
+    }finally{ btn.disabled=false; lbl.textContent=old; }
+  });
 })();
 </script>
-
-</body></html>
+</body>
+</html>
