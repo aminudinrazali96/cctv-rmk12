@@ -1,0 +1,306 @@
+<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Dashboard CCTV RMK12 – UM</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: summary band (ring + KPIs) → weighted work packages → cabling by site → baseline timeline with today line */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --line:#dde2ea; --fg:#18202c; --muted:#5d6878;
+  --accent:#2c4a7a; --accent-soft:#e3eaf5;
+  --ok:#2f8a5b; --ok-soft:#dcf1e5; --warn:#b97a0c; --warn-soft:#fbefd4; --idle:#9aa4b2; --idle-soft:#eceff3;
+  --today:#c2413b;
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"Public Sans",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10151d; --surface:#18202b; --line:#2a3442; --fg:#e6ebf2; --muted:#9aa6b6;
+  --accent:#8fb0e6; --accent-soft:#22324a;
+  --ok:#5cc28d; --ok-soft:#1b3328; --warn:#e5ad45; --warn-soft:#382c14; --idle:#6f7b8b; --idle-soft:#232b36;
+  --today:#ef6b63; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10151d; --surface:#18202b; --line:#2a3442; --fg:#e6ebf2; --muted:#9aa6b6;
+  --accent:#8fb0e6; --accent-soft:#22324a;
+  --ok:#5cc28d; --ok-soft:#1b3328; --warn:#e5ad45; --warn-soft:#382c14; --idle:#6f7b8b; --idle-soft:#232b36;
+  --today:#ef6b63; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:22px}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.05rem;font-weight:700}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+header{display:grid;gap:6px}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.85rem;color:var(--muted)}
+.meta b{color:var(--fg);font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.panel-head span{font-size:.82rem;color:var(--muted)}
+
+/* summary */
+.summary{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.ring{position:relative;width:170px;height:170px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .label{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1}
+.ring .small{font-size:.75rem;color:var(--muted);margin-top:4px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{border-left:3px solid var(--line);padding:4px 0 4px 12px;display:grid;gap:2px}
+.kpi .v{font-family:var(--f-display);font-weight:700;font-size:1.6rem;line-height:1.1}
+.kpi .k{font-size:.8rem;color:var(--muted)}
+.kpi.ok{border-color:var(--ok)} .kpi.warn{border-color:var(--warn)} .kpi.idle{border-color:var(--idle)} .kpi.acc{border-color:var(--accent)}
+
+/* weight strip */
+.strip{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);margin-bottom:6px}
+.strip > div{position:relative;border-right:2px solid var(--surface);background:var(--idle-soft)}
+.strip > div:last-child{border-right:0}
+.strip .fill{position:absolute;inset:0 auto 0 0}
+.strip .tag{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;color:var(--fg)}
+.strip-note{font-size:.8rem;color:var(--muted);margin:0 0 16px}
+
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+.tbl{overflow-x:auto}
+th{text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:700;border-top:2px solid var(--line)}
+td.r,th.r{text-align:right}
+.bar{height:8px;border-radius:4px;background:var(--idle-soft);min-width:90px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.idle{background:var(--idle-soft);color:var(--muted)}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:22px}
+
+/* cabling */
+.sites{display:grid;gap:14px}
+.site{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center}
+.site .name{font-weight:600}
+.site .count{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);white-space:nowrap}
+.site .bar{height:14px}
+.cab-total{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cab-total .v{font-family:var(--f-display);font-weight:800;font-size:1.8rem}
+
+/* timeline */
+.gantt{overflow-x:auto}
+.gantt svg{display:block;min-width:620px;width:100%;height:auto}
+.gantt text{font-family:var(--f-body)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:8px;border-radius:2px;display:inline-block}
+footer{font-size:.78rem;color:var(--muted)}
+footer a{color:var(--accent)}
+
+@media (max-width:860px){
+  .summary{grid-template-columns:1fr;justify-items:center}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .two{grid-template-columns:1fr}
+}
+@media (max-width:520px){ .hide-sm{display:none} }
+@media (prefers-reduced-motion:no-preference){
+  .bar i,.strip .fill{transition:width .6s ease}
+}
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Jabatan Teknologi Digital · Universiti Malaya</div>
+    <h1>Dashboard Projek CCTV RMK12</h1>
+    <p id="projName"></p>
+    <div class="meta">
+      <span>Tarikh laporan: <b id="repDate"></b></span>
+      <span>Kemaskini terakhir: <b id="updDate"></b></span>
+    </div>
+  </header>
+
+  <section class="panel summary" aria-label="Ringkasan">
+    <div class="ring" role="img" id="ringWrap">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--idle-soft)" stroke-width="12"/>
+        <circle id="ringArc" cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 314.16"/>
+      </svg>
+      <div class="label"><div class="big num" id="overallPct"></div><div class="small">kemajuan keseluruhan</div></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+
+  <section class="panel" aria-label="Pakej kerja">
+    <div class="panel-head"><h2>Pakej kerja mengikut wajaran</h2><span>Lebar setiap blok = wajaran; isi = kemajuan semasa</span></div>
+    <div class="strip" id="strip"></div>
+    <p class="strip-note" id="stripNote"></p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Pakej kerja</th><th class="r">Wajaran</th><th>Kemajuan semasa</th><th class="r">Diperoleh</th><th>Status</th><th class="hide-sm">Jadual asal</th><th class="hide-sm">Jadual sebenar</th></tr></thead>
+        <tbody id="wpBody"></tbody>
+        <tfoot><tr><td>Jumlah</td><td class="r num">100%</td><td></td><td class="r num" id="wpTotal"></td><td><span class="pill warn">In progress</span></td><td class="hide-sm"></td><td class="hide-sm"></td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <div class="two">
+    <section class="panel" aria-label="Status pemasangan kabel">
+      <div class="panel-head"><h2>Pemasangan kabel</h2><span>Mata kabel siap / jumlah</span></div>
+      <div class="sites" id="sites"></div>
+      <div class="cab-total">
+        <div><div class="eyebrow">Jumlah keseluruhan</div><div class="count num" id="cabCount"></div></div>
+        <div class="v num" id="cabPct"></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Garis masa">
+      <div class="panel-head"><h2>Garis masa (jadual asal)</h2><span id="todayLabel"></span></div>
+      <div class="gantt" id="gantt"></div>
+      <div class="legend">
+        <span><i style="background:var(--ok)"></i>Selesai</span>
+        <span><i style="background:var(--warn)"></i>Dalam pelaksanaan</span>
+        <span><i style="background:var(--idle)"></i>Belum bermula</span>
+        <span><i style="background:var(--today);width:2px;height:12px"></i>Hari ini</span>
+        <span><i style="background:var(--accent);width:2px;height:12px"></i>Tarikh sasaran penghantaran (1 Dis)</span>
+      </div>
+    </section>
+  </div>
+
+  <footer>Sumber: laporan kemajuan projek, Jabatan Teknologi Digital UM. Kemajuan keseluruhan = jumlah (wajaran × kemajuan semasa).</footer>
+</div>
+
+<script>
+/* ===== DATA (salinan dari Google Sheet, 6 Okt 2026) ===== */
+const DATA = {
+  project: "Perolehan Penggantian dan Perolehan Sistem Pengawasan Keselamatan Bersepadu – JTM, Universiti Malaya",
+  reportingDate: "2026-10-06",
+  lastUpdated: "2026-10-06",
+  workPackages: [
+    { name:"Project Management & Procurement",       weight:10, progress:100,   status:"Completed",   baseline:["2026-08-10","2026-08-19"], actual:"10 Aug - 19 Aug 2026" },
+    { name:"Cable Installation & Termination",       weight:25, progress:68.75, status:"In progress", baseline:["2026-09-21","2026-10-28"], actual:"21 Sept - kini" },
+    { name:"CCTV Supply & Installation",             weight:30, progress:0,     status:"Not started", baseline:["2026-10-26","2026-11-13"], actual:"-" },
+    { name:"NVR Supply & Installation",              weight:10, progress:0,     status:"Not started", baseline:["2026-11-12","2026-11-13"], actual:"-" },
+    { name:"CSIM Integration – 25 Licenses",         weight:15, progress:0,     status:"Not started", baseline:["2026-11-16","2026-11-18"], actual:"-" },
+    { name:"Testing, Configuration & Commissioning", weight:7,  progress:0,     status:"Not started", baseline:["2026-11-19","2026-11-19"], actual:"-" },
+    { name:"Documentation & Handover",               weight:3,  progress:0,     status:"Not started", baseline:["2026-11-18","2026-11-20"], actual:"-" }
+  ],
+  targetDate: "2026-12-01",
+  cabling: [
+    { site:"FSK",   total:5,  done:5  },
+    { site:"API",   total:20, done:20 },
+    { site:"APM",   total:10, done:10 },
+    { site:"JTD",   total:5,  done:5  },
+    { site:"FSKTM", total:40, done:15 }
+  ]
+};
+/* ======================================================== */
+
+const MONTHS=["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogo","Sep","Okt","Nov","Dis"];
+const d = s => { const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd); };
+const fmtDate = s => { const x=d(s); return `${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
+const fmtShort = s => { const x=d(s); return `${x.getDate()} ${MONTHS[x.getMonth()]}`; };
+const pct = (v,dp=2) => (Math.round(v*10**dp)/10**dp).toLocaleString("en-US",{maximumFractionDigits:dp})+"%";
+const cls = st => st==="Completed"?"ok":st==="In progress"?"warn":"idle";
+const col = st => `var(--${cls(st)})`;
+const label = st => ({Completed:"Selesai","In progress":"Dalam pelaksanaan","Not started":"Belum bermula"})[st]||st;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+
+// header
+document.getElementById("projName").textContent = DATA.project;
+document.getElementById("repDate").textContent = fmtDate(DATA.reportingDate);
+document.getElementById("updDate").textContent = fmtDate(DATA.lastUpdated);
+
+// cabling numbers feed the cable work package
+const cabTotal = DATA.cabling.reduce((a,c)=>a+c.total,0);
+const cabDone  = DATA.cabling.reduce((a,c)=>a+c.done,0);
+const cabPct   = cabTotal ? cabDone/cabTotal*100 : 0;
+
+const wps = DATA.workPackages.map(w=>({...w, earned:w.weight*w.progress/100}));
+const overall = wps.reduce((a,w)=>a+w.earned,0);
+
+// ring
+const C = 2*Math.PI*50;
+document.getElementById("ringArc").setAttribute("stroke-dasharray", `${(overall/100*C).toFixed(2)} ${C.toFixed(2)}`);
+document.getElementById("overallPct").textContent = pct(overall);
+document.getElementById("ringWrap").setAttribute("aria-label", `Kemajuan keseluruhan ${pct(overall)}`);
+
+// KPIs
+const nDone = wps.filter(w=>w.status==="Completed").length;
+const nProg = wps.filter(w=>w.status==="In progress").length;
+const nIdle = wps.filter(w=>w.status==="Not started").length;
+const end = wps.reduce((m,w)=>d(w.baseline[1])>m?d(w.baseline[1]):m, d(wps[0].baseline[1]));
+const today = d(DATA.reportingDate);
+const daysLeft = Math.round((end-today)/864e5);
+document.getElementById("kpis").innerHTML = [
+  ["ok", `${nDone}/${wps.length}`, "pakej kerja selesai"],
+  ["warn", nProg, "pakej dalam pelaksanaan"],
+  ["acc", pct(cabPct), `kabel siap (${cabDone}/${cabTotal} mata)`],
+  ["idle", daysLeft, `hari ke tarikh siap asal (${end.getDate()} ${MONTHS[end.getMonth()]})`]
+].map(([c,v,k])=>`<div class="kpi ${c}"><div class="v num">${v}</div><div class="k">${k}</div></div>`).join("");
+
+// strip
+document.getElementById("strip").innerHTML = wps.map(w=>
+  `<div style="flex:${w.weight}" title="${esc(w.name)}: ${w.weight}% wajaran, ${pct(w.progress)} siap">
+     <div class="fill" style="width:${w.progress}%;background:${col(w.status)};opacity:.85"></div>
+     <div class="tag">${w.weight >= 7 ? w.weight+"%" : ""}</div></div>`).join("");
+const remaining = 100-overall;
+document.getElementById("stripNote").textContent =
+  `Baki ${pct(remaining)} masih belum diperoleh. Pakej terbesar yang belum bermula: CCTV Supply & Installation (30%).`;
+
+// table
+document.getElementById("wpBody").innerHTML = wps.map(w=>`
+  <tr>
+    <td>${esc(w.name)}</td>
+    <td class="r num">${w.weight}%</td>
+    <td><div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex:1"><i style="width:${w.progress}%;background:${col(w.status)}"></i></div><span class="num" style="min-width:4.5em;text-align:right">${pct(w.progress)}</span></div></td>
+    <td class="r num">${pct(w.earned)}</td>
+    <td><span class="pill ${cls(w.status)}">${label(w.status)}</span></td>
+    <td class="hide-sm num" style="white-space:nowrap">${fmtShort(w.baseline[0])}${w.baseline[0]!==w.baseline[1]?" – "+fmtShort(w.baseline[1]):""}</td>
+    <td class="hide-sm" style="white-space:nowrap">${esc(w.actual)}</td>
+  </tr>`).join("");
+document.getElementById("wpTotal").textContent = pct(overall);
+
+// cabling
+document.getElementById("sites").innerHTML = DATA.cabling.map(c=>{
+  const p = c.total? c.done/c.total*100 : 0;
+  const st = p>=100?"Completed":p>0?"In progress":"Not started";
+  return `<div class="site">
+    <div class="name">${esc(c.site)}</div>
+    <div class="bar" title="${pct(p)}"><i style="width:${p}%;background:${col(st)}"></i></div>
+    <div class="count">${c.done}/${c.total} · ${pct(p,0)}</div></div>`;
+}).join("");
+document.getElementById("cabCount").textContent = `${cabDone} daripada ${cabTotal} mata kabel`;
+document.getElementById("cabPct").textContent = pct(cabPct);
+
+// gantt (SVG)
+(function(){
+  const start = d("2026-08-03"), stop = d("2026-12-08");
+  const W=640, left=10, right=W-10, rowH=34, top=30, H=top+wps.length*rowH+10;
+  const x = t => left + (t-start)/(stop-start)*(right-left);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Garis masa jadual asal setiap pakej kerja">`;
+  for(let m=7;m<=11;m++){
+    const t=new Date(2026,m,1); const xx=x(t);
+    s+=`<line x1="${xx}" y1="${top-8}" x2="${xx}" y2="${H-6}" stroke="var(--line)"/>`;
+    s+=`<text x="${xx+4}" y="${top-14}" font-size="11" fill="var(--muted)">${MONTHS[m]} 2026</text>`;
+  }
+  wps.forEach((w,i)=>{
+    const y=top+i*rowH;
+    const a=x(d(w.baseline[0])), b=x(new Date(d(w.baseline[1]).getTime()+864e5));
+    const bw=Math.max(b-a,4);
+    s+=`<rect x="${a}" y="${y+16}" width="${bw}" height="10" rx="3" fill="${col(w.status)}" opacity="${w.status==="Not started"?.55:1}"><title>${esc(w.name)}: ${fmtShort(w.baseline[0])} – ${fmtShort(w.baseline[1])}</title></rect>`;
+    if(w.progress>0 && w.progress<100) s+=`<rect x="${a}" y="${y+16}" width="${bw*w.progress/100}" height="10" rx="3" fill="${col(w.status)}"/>`;
+    const lx = Math.min(a, right-260);
+    s+=`<text x="${lx}" y="${y+11}" font-size="11.5" fill="var(--fg)">${esc(w.name)}</text>`;
+  });
+  const tx=x(today);
+  s+=`<line x1="${tx}" y1="${top-8}" x2="${tx}" y2="${H-6}" stroke="var(--today)" stroke-width="2"/>`;
+  s+=`<text x="${tx-4}" y="${H-2}" font-size="10.5" fill="var(--today)" text-anchor="end">Hari ini</text>`;
+  const px=x(d(DATA.targetDate));
+  s+=`<line x1="${px}" y1="${top-8}" x2="${px}" y2="${H-6}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  s+=`<text x="${px-4}" y="${H-2}" font-size="10.5" fill="var(--accent)" text-anchor="end">Sasaran 1 Dis</text>`;
+  s+=`</svg>`;
+  document.getElementById("gantt").innerHTML=s;
+  document.getElementById("todayLabel").textContent = `Hari ini: ${fmtDate(DATA.reportingDate)}`;
+})();
+</script>
+
+</body></html>
