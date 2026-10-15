@@ -545,7 +545,9 @@ const TL = (function(){
       pdf.setFont("helvetica","bold"); pdf.setFontSize(14); pdf.setTextColor(29,24,56);
       pdf.text("Dashboard Projek CCTV RMK12 - Garis Masa Projek", M, M+5);
       pdf.setFont("helvetica","normal"); pdf.setFontSize(9); pdf.setTextColor(107,101,144);
-      pdf.text(`Jabatan Teknologi Digital, Universiti Malaya  |  Data: ${fmtDate(DATA.lastUpdated)}  |  Paparan: ${TL.mode==="week"?"Minggu":"Bulan"}  |  Dijana: ${fmtDate(today)}`, M, M+11);
+      /* tarikh diambil dari kepala dashboard supaya PDF sentiasa sama dengan paparan */
+      const hdrRep=document.getElementById("repDate").textContent, hdrUpd=document.getElementById("updDate").textContent;
+      pdf.text(`Jabatan Teknologi Digital, Universiti Malaya  |  Tarikh laporan: ${hdrRep}  |  Kemaskini terakhir: ${hdrUpd}  |  Paparan: ${TL.mode==="week"?"Minggu":"Bulan"}  |  Dijana: ${fmtDate(today)}`, M, M+11);
       const top=M+16, maxW=PW-2*M, maxH=PH-top-M;
       let iw=maxW, ih=iw*h/w; if(ih>maxH){ ih=maxH; iw=ih*w/h; }
       pdf.addImage(img,"PNG",M+(maxW-iw)/2,top,iw,ih,undefined,"FAST");
