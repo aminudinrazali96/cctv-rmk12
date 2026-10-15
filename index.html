@@ -532,7 +532,7 @@ const TL = (function(){
       for(const s of LIBS) await load(s);
       root.setAttribute("data-theme","light");
       panel.classList.add("exporting"); TL.render();
-      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      await new Promise(r=>setTimeout(r,120));
       const opt={pixelRatio:2,backgroundColor:"#ffffff",width:panel.offsetWidth,height:panel.offsetHeight,filter:n=>!(n.classList&&n.classList.contains("no-export"))};
       let img;
       try{ img=await htmlToImage.toPng(panel,opt); }catch(e){ img=await htmlToImage.toPng(panel,{...opt,skipFonts:true}); }
