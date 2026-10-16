@@ -351,13 +351,13 @@ footer{font-size:.78rem;color:var(--muted);text-align:center}
 /* ===== DATA (salinan dari Google Sheet) ===== */
 const DATA = {
   project: "Perolehan Penggantian dan Perolehan Sistem Pengawasan Keselamatan Bersepadu – JTM, Universiti Malaya",
-  reportingDate: "2026-10-14",
-  lastUpdated: "2026-10-06",
+  reportingDate: "2026-10-15",
+  lastUpdated: "2026-10-15",
   workPackages: [
     { name:"Project Management & Procurement",       weight:10, progress:100,   status:"Completed",   baseline:["2026-08-10","2026-08-19"], actual:"10 Aug - 19 Aug 2026" },
     { name:"Cable Installation & Termination",       weight:25, progress:100,   status:"Completed",   baseline:["2026-09-21","2026-10-28"], actual:"21 Sept - 14 Okt 2026" },
-    { name:"CCTV Supply & Installation",             weight:30, progress:0,     status:"Equipment Received", received:"2026-10-15", baseline:["2026-10-26","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
-    { name:"NVR Supply & Installation",              weight:10, progress:0,     status:"Equipment Received", received:"2026-10-15", baseline:["2026-11-12","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
+    { name:"CCTV Supply & Installation",             weight:30, progress:0,     status:"Pending Installation", received:"2026-10-15", baseline:["2026-10-26","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
+    { name:"NVR Supply & Installation",              weight:10, progress:0,     status:"Pending Installation", received:"2026-10-15", baseline:["2026-11-12","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
     { name:"CSIM Integration – 25 Licenses",         weight:15, progress:0,     status:"Not started", baseline:["2026-11-16","2026-11-18"], actual:"-" },
     { name:"Testing, Configuration & Commissioning", weight:7,  progress:0,     status:"Not started", baseline:["2026-11-19","2026-11-19"], actual:"-" },
     { name:"Documentation & Handover",               weight:3,  progress:0,     status:"Not started", baseline:["2026-11-18","2026-11-20"], actual:"-" }
@@ -384,8 +384,8 @@ const d = s => { const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,
 const fmtDate = x => { if(typeof x==="string") x=d(x); return `${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()}`; };
 const fmtShort = s => { const x=d(s); return `${x.getDate()} ${MONTHS[x.getMonth()]}`; };
 const pct = (v,dp=2) => (Math.round(v*10**dp)/10**dp).toLocaleString("en-US",{maximumFractionDigits:dp})+"%";
-const cls = st => st==="Completed"?"ok":st==="In progress"?"warn":st==="Pending Equipment"?"pend":st==="Equipment Received"?"recv":"idle";
-const label = st => ({Completed:"Selesai","In progress":"Dalam pelaksanaan","Not started":"Belum bermula","Pending Equipment":"Menunggu peralatan","Equipment Received":"Peralatan diterima"})[st]||st;
+const cls = st => st==="Completed"?"ok":st==="In progress"?"warn":st==="Pending Equipment"?"pend":st==="Pending Installation"?"recv":"idle";
+const label = st => ({Completed:"Selesai","In progress":"Dalam pelaksanaan","Not started":"Belum bermula","Pending Equipment":"Menunggu peralatan","Pending Installation":"Menunggu pemasangan"})[st]||st;
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 const now = new Date(); const today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
 
@@ -438,7 +438,7 @@ const IC = {
 const nDone = wps.filter(w=>w.status==="Completed").length;
 const nProg = wps.filter(w=>w.status==="In progress").length;
 const nPend = wps.filter(w=>w.status==="Pending Equipment").length;
-const nRecv = wps.filter(w=>w.status==="Equipment Received").length;
+const nRecv = wps.filter(w=>w.status==="Pending Installation").length;
 const end = wps.reduce((m,w)=>d(w.baseline[1])>m?d(w.baseline[1]):m, d(wps[0].baseline[1]));
 const daysLeft = Math.round((end-today)/DAY);
 const KPI_FMT=[];
@@ -470,7 +470,7 @@ document.getElementById("strip").innerHTML = wps.map(w=>
 const remaining = 100-overall;
 const biggestIdle = wps.filter(w=>w.status!=="Completed" && w.progress===0).sort((a,b)=>b.weight-a.weight)[0];
 document.getElementById("stripNote").textContent =
-  `Baki ${pct(remaining)} masih belum diperoleh.` + (biggestIdle?` Pakej terbesar yang belum dimulakan: ${biggestIdle.name} (${biggestIdle.weight}%${biggestIdle.status==="Pending Equipment"?", menunggu peralatan":biggestIdle.status==="Equipment Received"?", peralatan sudah diterima":""}).`:"");
+  `Baki ${pct(remaining)} masih belum diperoleh.` + (biggestIdle?` Pakej terbesar yang belum dimulakan: ${biggestIdle.name} (${biggestIdle.weight}%${biggestIdle.status==="Pending Equipment"?", menunggu peralatan":biggestIdle.status==="Pending Installation"?", peralatan sudah diterima":""}).`:"");
 
 // table
 document.getElementById("wpBody").innerHTML = wps.map((w,i)=>`
@@ -535,7 +535,7 @@ const TL = (function(){
         <div class="tl-lab"><span class="dot">${i+1}</span><div><b>${esc(w.name)}</b><small>${dates} · wajaran ${w.weight}%</small></div></div>
         <div class="tl-track" title="${esc(w.name)}: ${dates}, ${label(w.status)} ${pct(w.progress)}">
           <div class="tl-bar ${k}" style="left:${a}%;width:${wd}%"><i style="width:${k==="idle"?0:w.progress}%"></i></div>
-          <span class="tl-pct${k==="idle"?" out":""}" style="${pos}">${k==="done"?"✓ ":""}${w.status==="Pending Equipment"?"Menunggu peralatan":w.status==="Equipment Received"?`Peralatan diterima ${fmtShort(w.received)}`:k==="idle"?"0%":pct(w.progress,0)}</span>${w.received?`<span class="tl-mark" style="left:${X(d(w.received))}%" title="Peralatan diterima ${fmtShort(w.received)}"></span>`:""}
+          <span class="tl-pct${k==="idle"?" out":""}" style="${pos}">${k==="done"?"✓ ":""}${w.status==="Pending Equipment"?"Menunggu peralatan":w.status==="Pending Installation"?`Peralatan diterima ${fmtShort(w.received)}`:k==="idle"?"0%":pct(w.progress,0)}</span>${w.received?`<span class="tl-mark" style="left:${X(d(w.received))}%" title="Peralatan diterima ${fmtShort(w.received)}"></span>`:""}
         </div></div>`;
     }).join("");
     if(today>=start && today<=stop) lines+=`<div class="today" style="left:${X(today)}%"><span class="flag">Hari ini</span></div>`;
@@ -557,7 +557,7 @@ const TL = (function(){
 (function(){
   const wrap=document.querySelector(".wrap");
   const pick = t => t==="done"   ? wps.map((w,i)=>w.status==="Completed"?i:-1)
-                  : t==="active" ? wps.map((w,i)=>(w.status==="In progress"||w.status==="Equipment Received")?i:-1)
+                  : t==="active" ? wps.map((w,i)=>(w.status==="In progress"||w.status==="Pending Installation")?i:-1)
                   : t==="cable"  ? wps.map((w,i)=>/^Cable/i.test(w.name)?i:-1)
                   : t==="end"    ? wps.map((w,i)=>d(w.baseline[1]).getTime()===end.getTime()?i:-1) : [];
   let pinned=null;
