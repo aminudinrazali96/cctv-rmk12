@@ -235,6 +235,26 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 }
 .tl-panel.exporting,.tl-panel.exporting *{animation:none!important;transition:none!important}
 
+/* serlahan dari kad KPI */
+.kpi .hint{font-size:.7rem;color:color-mix(in srgb,var(--c) 70%,var(--muted));opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease}
+.kpi:hover .hint,.kpi:focus-visible .hint,.kpi.pinned .hint{opacity:1;max-height:3.2em}
+.kpi.pinned{outline:2px solid var(--c);outline-offset:2px}
+.kpi:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.hl-on #wpBody tr,.hl-on .tl-row,.hl-on .site{transition:opacity .25s ease,background .25s ease,box-shadow .25s ease}
+.hl-on #wpBody tr:not(.hl),.hl-on .tl-row:not(.hl){opacity:.28}
+.hl-on[data-hl="cable"] .site:not(.hl){opacity:.28}
+.hl-on:not([data-hl="cable"]) .site{opacity:.28}
+#wpBody tr.hl td{background:color-mix(in srgb,var(--c) 12%,transparent)!important}
+#wpBody tr.hl td:first-child{box-shadow:inset 4px 0 0 var(--c)}
+.tl-row.hl{background:color-mix(in srgb,var(--c) 10%,transparent);box-shadow:inset 4px 0 0 var(--c);border-radius:8px}
+.tl-row.hl .tl-bar{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 35%,transparent)}
+.tl-row.hl .tl-mark{animation:mark-pulse 1s ease-in-out infinite}
+@keyframes mark-pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,#14b8a6 30%,transparent)}}
+.site.hl .bar{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent)}
+.tl-lines .target.hl{border-left-width:3px}
+.tl-lines .target.hl .flag{animation:mark-pulse 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.tl-row.hl .tl-mark,.tl-lines .target.hl .flag{animation:none}}
+
 footer{font-size:.78rem;color:var(--muted);text-align:center}
 
 @media (max-width:860px){
@@ -412,6 +432,7 @@ const IC = {
   check:'<path d="M5 12.5 10 17l9-10"/>',
   play:'<path d="M8 5v14l11-7z"/>',
   cable:'<path d="M4 7h7a4 4 0 0 1 0 8H8"/><path d="M8 11v8"/><circle cx="18" cy="7" r="2"/>',
+  box:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
   cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'
 };
 const nDone = wps.filter(w=>w.status==="Completed").length;
@@ -421,12 +442,19 @@ const nRecv = wps.filter(w=>w.status==="Equipment Received").length;
 const end = wps.reduce((m,w)=>d(w.baseline[1])>m?d(w.baseline[1]):m, d(wps[0].baseline[1]));
 const daysLeft = Math.round((end-today)/DAY);
 const KPI_FMT=[];
+/* kad ke-2: pakej yang sedang bergerak (dipasang ATAU peralatan sudah sampai) */
+const recvDates=[...new Set(wps.filter(w=>w.received).map(w=>fmtShort(w.received)))].join(", ");
+const ACTIVE = { n:nProg+nRecv,
+  label: nProg && nRecv ? `pakej aktif: ${nProg} sedang dipasang, ${nRecv} sedia dipasang`
+       : nRecv ? `pakej sedia dipasang · peralatan diterima ${recvDates}`
+       : nPend ? `pakej dalam pelaksanaan · ${nPend} menunggu peralatan`
+       : "pakej dalam pelaksanaan" };
 document.getElementById("kpis").innerHTML = [
-  ["#22c55e","check", nDone, v=>`${Math.round(v)}/${wps.length}`, "pakej kerja selesai"],
-  ["#ff9f1c","play",  nProg, v=>`${Math.round(v)}`, "pakej dalam pelaksanaan"+(nRecv?` · ${nRecv} peralatan diterima`:"")+(nPend?` · ${nPend} menunggu peralatan`:"")],
-  ["#14b8a6","cable", cabPct, v=>pct(v), `kabel siap (${cabDone}/${cabTotal} mata)`],
-  ["#7b5cff","cal",   Math.abs(daysLeft), v=>`${Math.round(v)}`, daysLeft>=0?`hari lagi ke tarikh siap asal (${end.getDate()} ${MONTHS[end.getMonth()]})`:`hari selepas tarikh siap asal`]
-].map(([c,ic,v,f,k],i)=>{ KPI_FMT[i]=[v,f]; return `<div class="kpi" style="--c:${c}"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${IC[ic]}</svg></div><div class="v num">${f(v)}</div><div class="k">${k}</div></div>`; }).join("");
+  ["#22c55e","check", nDone, v=>`${Math.round(v)}/${wps.length}`, "pakej kerja selesai", "done"],
+  ["#ff9f1c", nProg?"play":"box", ACTIVE.n, v=>`${Math.round(v)}`, ACTIVE.label, "active"],
+  ["#14b8a6","cable", cabPct, v=>pct(v), `kabel siap (${cabDone}/${cabTotal} mata)`, "cable"],
+  ["#7b5cff","cal",   Math.abs(daysLeft), v=>`${Math.round(v)}`, daysLeft>=0?`hari lagi ke tarikh siap asal (${end.getDate()} ${MONTHS[end.getMonth()]})`:`hari selepas tarikh siap asal`, "end"]
+].map(([c,ic,v,f,k,t],i)=>{ KPI_FMT[i]=[v,f]; return `<div class="kpi" style="--c:${c}" data-hl="${t}" tabindex="0" role="button" aria-label="${esc(f(v)+" "+k)}. Tunjuk dalam jadual dan garis masa"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${IC[ic]}</svg></div><div class="v num">${f(v)}</div><div class="k">${k}</div><div class="hint">↓ Diserlahkan dalam jadual &amp; garis masa</div></div>`; }).join("");
 document.querySelectorAll("#kpis .kpi").forEach((el,i)=>{
   const [v,f]=KPI_FMT[i], vEl=el.querySelector(".v");
   setTimeout(()=>countUp(vEl,v,f,900), 200+i*100);
@@ -446,7 +474,7 @@ document.getElementById("stripNote").textContent =
 
 // table
 document.getElementById("wpBody").innerHTML = wps.map((w,i)=>`
-  <tr style="--c:${w.c}">
+  <tr style="--c:${w.c}" data-i="${i}">
     <td><div class="wp"><span class="dot">${i+1}</span><span>${esc(w.name)}</span></div></td>
     <td class="r num">${w.weight}%</td>
     <td><div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex:1"><i style="width:${w.progress}%"></i></div><span class="num" style="min-width:4.5em;text-align:right">${pct(w.progress)}</span></div></td>
@@ -462,7 +490,7 @@ const tsEl=document.getElementById("wpTotStatus"); tsEl.className="pill "+cls(to
 // cabling
 document.getElementById("sites").innerHTML = DATA.cabling.map((c,i)=>{
   const p = c.total? c.done/c.total*100 : 0;
-  return `<div class="site" style="--c:${SITE[i%SITE.length]}">
+  return `<div class="site" style="--c:${SITE[i%SITE.length]}" data-site="${i}">
     <div class="name">${esc(c.site)}</div>
     <div class="bar" title="${pct(p)}"><i style="width:${p}%"></i></div>
     <div class="count">${c.done}/${c.total} · ${pct(p,0)}</div></div>`;
@@ -503,7 +531,7 @@ const TL = (function(){
       const k = w.status==="Completed"?"done":w.status==="In progress"?"prog":"idle";
       const dates = fmtShort(w.baseline[0])+(w.baseline[0]!==w.baseline[1]?" – "+fmtShort(w.baseline[1]):"");
       const pl=a+wd, pos = w.received ? `right:${100-X(d(w.received))}%;margin-right:14px` : (pl>86 || w.status==="Pending Equipment") ? `right:${100-a}%;margin-right:8px` : `left:${pl}%;margin-left:8px`;
-      return `<div class="tl-row" style="--c:${w.c}">
+      return `<div class="tl-row" style="--c:${w.c}" data-i="${i}">
         <div class="tl-lab"><span class="dot">${i+1}</span><div><b>${esc(w.name)}</b><small>${dates} · wajaran ${w.weight}%</small></div></div>
         <div class="tl-track" title="${esc(w.name)}: ${dates}, ${label(w.status)} ${pct(w.progress)}">
           <div class="tl-bar ${k}" style="left:${a}%;width:${wd}%"><i style="width:${k==="idle"?0:w.progress}%"></i></div>
@@ -514,6 +542,7 @@ const TL = (function(){
     lines+=`<div class="target" style="left:${X(d(DATA.targetDate))}%"><span class="flag">Sasaran 1 Dis</span></div>`;
     el.innerHTML = `<div class="tl-head"><div>${mode==="week"?"Pakej kerja · Minggu projek (M)":"Pakej kerja"}</div><div class="tl-scale"><div class="tl-band">${band}</div>${mode==="week"?`<div class="tl-wk">${wk}</div>`:""}</div></div>${rows}<div class="tl-lines">${lines}</div>`;
     el.style.setProperty("--hh", el.querySelector(".tl-head").offsetHeight+"px");
+    if(window.__reHL) window.__reHL();
   }
   try{ const m=localStorage.getItem("cctv12-tl"); if(m==="week"||m==="month") mode=m; }catch(e){}
   const btns=[...document.querySelectorAll(".seg button")];
@@ -522,6 +551,36 @@ const TL = (function(){
   set(mode);
   document.getElementById("todayLabel").textContent = `Hari ini: ${fmtDate(today)}`;
   return { render, get mode(){return mode;} };
+})();
+
+// KPI → serlahkan baris berkaitan dalam jadual, kabel dan garis masa
+(function(){
+  const wrap=document.querySelector(".wrap");
+  const pick = t => t==="done"   ? wps.map((w,i)=>w.status==="Completed"?i:-1)
+                  : t==="active" ? wps.map((w,i)=>(w.status==="In progress"||w.status==="Equipment Received")?i:-1)
+                  : t==="cable"  ? wps.map((w,i)=>/^Cable/i.test(w.name)?i:-1)
+                  : t==="end"    ? wps.map((w,i)=>d(w.baseline[1]).getTime()===end.getTime()?i:-1) : [];
+  let pinned=null;
+  function on(t){
+    off(); const idx=pick(t).filter(i=>i>=0); if(!idx.length && t!=="cable") return;
+    wrap.classList.add("hl-on"); wrap.dataset.hl=t;
+    idx.forEach(i=>document.querySelectorAll(`[data-i="${i}"]`).forEach(e=>e.classList.add("hl")));
+    if(t==="cable") document.querySelectorAll("[data-site]").forEach(e=>e.classList.add("hl"));
+    if(t==="end") document.querySelectorAll(".tl-lines .target").forEach(e=>e.classList.add("hl"));
+  }
+  function off(){ wrap.classList.remove("hl-on"); delete wrap.dataset.hl; document.querySelectorAll(".hl").forEach(e=>e.classList.remove("hl")); }
+  window.__reHL=()=>{ if(wrap.dataset.hl) on(wrap.dataset.hl); };
+  document.querySelectorAll(".kpi[data-hl]").forEach(k=>{
+    const t=k.dataset.hl;
+    k.addEventListener("mouseenter",()=>{ if(!pinned) on(t); });
+    k.addEventListener("mouseleave",()=>{ if(!pinned) off(); });
+    k.addEventListener("focus",()=>on(t)); k.addEventListener("blur",()=>{ if(!pinned) off(); });
+    k.addEventListener("click",()=>{ /* sentuh pada telefon: kunci/lepas serlahan */
+      if(pinned===t){ pinned=null; k.classList.remove("pinned"); off(); }
+      else { document.querySelectorAll(".kpi.pinned").forEach(x=>x.classList.remove("pinned")); pinned=t; k.classList.add("pinned"); on(t); }
+    });
+  });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ pinned=null; document.querySelectorAll(".kpi.pinned").forEach(x=>x.classList.remove("pinned")); off(); }});
 })();
 
 // PDF download of the timeline panel
