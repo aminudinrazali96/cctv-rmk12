@@ -351,15 +351,15 @@ footer{font-size:.78rem;color:var(--muted);text-align:center}
 /* ===== DATA (salinan dari Google Sheet) ===== */
 const DATA = {
   project: "Perolehan Penggantian dan Perolehan Sistem Pengawasan Keselamatan Bersepadu – JTM, Universiti Malaya",
-  reportingDate: "2026-10-15",
-  lastUpdated: "2026-10-15",
+  reportingDate: "2026-11-06",
+  lastUpdated: "2026-11-06",
   workPackages: [
     { name:"Project Management & Procurement",       weight:10, progress:100,   status:"Completed",   baseline:["2026-08-10","2026-08-19"], actual:"10 Aug - 19 Aug 2026" },
     { name:"Cable Installation & Termination",       weight:25, progress:100,   status:"Completed",   baseline:["2026-09-21","2026-10-28"], actual:"21 Sept - 14 Okt 2026" },
-    { name:"CCTV Supply & Installation",             weight:30, progress:0,     status:"Pending Installation", received:"2026-10-15", baseline:["2026-10-26","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
-    { name:"NVR Supply & Installation",              weight:10, progress:0,     status:"Pending Installation", received:"2026-10-15", baseline:["2026-11-12","2026-11-13"], actual:"Peralatan diterima 15 Okt 2026" },
+    { name:"CCTV Supply & Installation",             weight:30, progress:100,   status:"Completed",   received:"2026-10-15", baseline:["2026-10-26","2026-11-13"], actual:"29 Okt - 3 Nov 2026" },
+    { name:"NVR Supply & Installation",              weight:10, progress:100,   status:"Completed",   received:"2026-10-15", baseline:["2026-11-12","2026-11-13"], actual:"26 Okt - 28 Okt 2026" },
     { name:"CSIM Integration – 25 Licenses",         weight:15, progress:0,     status:"Not started", baseline:["2026-11-16","2026-11-18"], actual:"-" },
-    { name:"Testing, Configuration & Commissioning", weight:7,  progress:0,     status:"Not started", baseline:["2026-11-19","2026-11-19"], actual:"-" },
+    { name:"Testing, Configuration & Commissioning", weight:7,  progress:40,    status:"In progress", baseline:["2026-11-19","2026-11-19"], actual:"30 Okt 2026 - kini" },
     { name:"Documentation & Handover",               weight:3,  progress:0,     status:"Not started", baseline:["2026-11-18","2026-11-20"], actual:"-" }
   ],
   targetDate: "2026-12-01",
@@ -368,7 +368,7 @@ const DATA = {
     { site:"API",   total:20, done:20 },
     { site:"APM",   total:10, done:10 },
     { site:"JTD",   total:5,  done:5  },
-    { site:"FSKTM", total:40, done:40 }  /* sheet: Completed 38 tetapi status/jumlah 100% (80/80) */
+    { site:"FSKTM", total:40, done:40 }
   ]
 };
 /* ============================================ */
@@ -530,7 +530,7 @@ const TL = (function(){
       const wd=Math.max(b-a,2.4);
       const k = w.status==="Completed"?"done":w.status==="In progress"?"prog":"idle";
       const dates = fmtShort(w.baseline[0])+(w.baseline[0]!==w.baseline[1]?" – "+fmtShort(w.baseline[1]):"");
-      const pl=a+wd, pos = w.received ? `right:${100-X(d(w.received))}%;margin-right:14px` : (pl>86 || w.status==="Pending Equipment") ? `right:${100-a}%;margin-right:8px` : `left:${pl}%;margin-left:8px`;
+      const pl=a+wd, pos = (w.received && w.status==="Pending Installation") ? `right:${100-X(d(w.received))}%;margin-right:14px` : (pl>86 || w.status==="Pending Equipment") ? `right:${100-a}%;margin-right:8px` : `left:${pl}%;margin-left:8px`;
       return `<div class="tl-row" style="--c:${w.c}" data-i="${i}">
         <div class="tl-lab"><span class="dot">${i+1}</span><div><b>${esc(w.name)}</b><small>${dates} · wajaran ${w.weight}%</small></div></div>
         <div class="tl-track" title="${esc(w.name)}: ${dates}, ${label(w.status)} ${pct(w.progress)}">
