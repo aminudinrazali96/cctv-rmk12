@@ -351,16 +351,16 @@ footer{font-size:.78rem;color:var(--muted);text-align:center}
 /* ===== DATA (salinan dari Google Sheet) ===== */
 const DATA = {
   project: "Perolehan Penggantian dan Perolehan Sistem Pengawasan Keselamatan Bersepadu – JTM, Universiti Malaya",
-  reportingDate: "2026-11-06",
-  lastUpdated: "2026-11-06",
+  reportingDate: "2026-11-20",
+  lastUpdated: "2026-11-20",
   workPackages: [
     { name:"Project Management & Procurement",       weight:10, progress:100,   status:"Completed",   baseline:["2026-08-10","2026-08-19"], actual:"10 Aug - 19 Aug 2026" },
     { name:"Cable Installation & Termination",       weight:25, progress:100,   status:"Completed",   baseline:["2026-09-21","2026-10-28"], actual:"21 Sept - 14 Okt 2026" },
     { name:"CCTV Supply & Installation",             weight:30, progress:100,   status:"Completed",   received:"2026-10-15", baseline:["2026-10-26","2026-11-13"], actual:"29 Okt - 3 Nov 2026" },
     { name:"NVR Supply & Installation",              weight:10, progress:100,   status:"Completed",   received:"2026-10-15", baseline:["2026-11-12","2026-11-13"], actual:"26 Okt - 28 Okt 2026" },
-    { name:"CSIM Integration – 25 Licenses",         weight:15, progress:0,     status:"Not started", baseline:["2026-11-16","2026-11-18"], actual:"-" },
-    { name:"Testing, Configuration & Commissioning", weight:7,  progress:40,    status:"In progress", baseline:["2026-11-19","2026-11-19"], actual:"30 Okt 2026 - kini" },
-    { name:"Documentation & Handover",               weight:3,  progress:0,     status:"Not started", baseline:["2026-11-18","2026-11-20"], actual:"-" }
+    { name:"CSIM Provisioning – 25 Licenses",        weight:15, progress:100,   status:"Completed",   baseline:["2026-11-16","2026-11-18"], actual:"16 Nov - 18 Nov 2026" },
+    { name:"Testing, Configuration & Commissioning", weight:7,  progress:100,   status:"Completed",   baseline:["2026-11-19","2026-11-19"], actual:"30 Okt - 10 Nov 2026" },
+    { name:"Documentation & Handover",               weight:3,  progress:100,   status:"Completed",   baseline:["2026-11-18","2026-11-20"], actual:"18 Nov - 20 Nov 2026" }
   ],
   targetDate: "2026-12-01",
   cabling: [
@@ -469,7 +469,7 @@ document.getElementById("strip").innerHTML = wps.map(w=>
      <div class="tag${w.progress>=50?" on":""}">${w.weight >= 7 ? w.weight+"%" : ""}</div></div>`).join("");
 const remaining = 100-overall;
 const biggestIdle = wps.filter(w=>w.status!=="Completed" && w.progress===0).sort((a,b)=>b.weight-a.weight)[0];
-document.getElementById("stripNote").textContent =
+document.getElementById("stripNote").textContent = remaining<=0 ? "Semua pakej kerja selesai (100% diperoleh)." :
   `Baki ${pct(remaining)} masih belum diperoleh.` + (biggestIdle?` Pakej terbesar yang belum dimulakan: ${biggestIdle.name} (${biggestIdle.weight}%${biggestIdle.status==="Pending Equipment"?", menunggu peralatan":biggestIdle.status==="Pending Installation"?", peralatan sudah diterima":""}).`:"");
 
 // table
